@@ -115,6 +115,22 @@ server.registerTool(
   }
 );
 
+// --- get_tasks_by_filter ---
+server.registerTool(
+  "get_tasks_by_filter",
+  {
+    description: "Query active tasks using Todoist filter syntax. Examples: 'today', 'overdue', 'p1', '#Work', '@email', 'due before: next week & !assigned to: others'. Supports the full Todoist filter language.",
+    inputSchema: {
+      query: z.string().describe("Todoist filter query string"),
+      lang: z.string().optional().describe("Language code for natural language date parsing, e.g. 'en', 'de' (defaults to account language)"),
+    },
+  },
+  async ({ query, lang }) => {
+    const tasks = await todoist.getTasksByFilter({ query, lang });
+    return { content: [{ type: "text", text: JSON.stringify(tasks, null, 2) }] };
+  }
+);
+
 // --- quick_add_task ---
 server.registerTool(
   "quick_add_task",
