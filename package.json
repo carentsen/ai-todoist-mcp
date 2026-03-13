@@ -20,7 +20,15 @@
     "claude"
   ],
   "author": "Chris Arentsen",
-  "license": "ISC",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/carentsen/todoist-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/carentsen/todoist-mcp/issues"
+  },
+  "homepage": "https://github.com/carentsen/todoist-mcp#readme",
   "type": "commonjs",
   "dependencies": {
     "@doist/todoist-api-typescript": "^7.0.0",
