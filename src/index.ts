@@ -204,6 +204,84 @@ server.registerTool(
   }
 );
 
+// --- get_sections ---
+server.registerTool(
+  "get_sections",
+  {
+    description: "List sections, optionally filtered by project",
+    inputSchema: {
+      project_id: z.string().optional().describe("Filter sections by project ID"),
+    },
+  },
+  async ({ project_id }) => {
+    const sections = await todoist.getSections({ projectId: project_id });
+    return { content: [{ type: "text", text: JSON.stringify(sections, null, 2) }] };
+  }
+);
+
+// --- get_section ---
+server.registerTool(
+  "get_section",
+  {
+    description: "Get a single Todoist section by ID",
+    inputSchema: {
+      section_id: z.string().describe("The ID of the section"),
+    },
+  },
+  async ({ section_id }) => {
+    const section = await todoist.getSection(section_id);
+    return { content: [{ type: "text", text: JSON.stringify(section, null, 2) }] };
+  }
+);
+
+// --- create_section ---
+server.registerTool(
+  "create_section",
+  {
+    description: "Create a new section within a project",
+    inputSchema: {
+      name: z.string().describe("Section name"),
+      project_id: z.string().describe("Project ID to create the section in"),
+      order: z.number().int().optional().describe("Position of the section within the project"),
+    },
+  },
+  async ({ name, project_id, order }) => {
+    const section = await todoist.addSection({ name, projectId: project_id, order });
+    return { content: [{ type: "text", text: JSON.stringify(section, null, 2) }] };
+  }
+);
+
+// --- update_section ---
+server.registerTool(
+  "update_section",
+  {
+    description: "Rename a Todoist section",
+    inputSchema: {
+      section_id: z.string().describe("The ID of the section to update"),
+      name: z.string().describe("New section name"),
+    },
+  },
+  async ({ section_id, name }) => {
+    const section = await todoist.updateSection(section_id, { name });
+    return { content: [{ type: "text", text: JSON.stringify(section, null, 2) }] };
+  }
+);
+
+// --- delete_section ---
+server.registerTool(
+  "delete_section",
+  {
+    description: "Delete a Todoist section (and all tasks within it)",
+    inputSchema: {
+      section_id: z.string().describe("The ID of the section to delete"),
+    },
+  },
+  async ({ section_id }) => {
+    await todoist.deleteSection(section_id);
+    return { content: [{ type: "text", text: `Section ${section_id} deleted.` }] };
+  }
+);
+
 // --- add_comment ---
 server.registerTool(
   "add_comment",
