@@ -282,19 +282,69 @@ server.registerTool(
   }
 );
 
+// --- get_comments ---
+server.registerTool(
+  "get_comments",
+  {
+    description: "List comments on a task or project. Provide either task_id or project_id.",
+    inputSchema: {
+      task_id: z.string().optional().describe("Task ID to get comments for. Mutually exclusive with project_id."),
+      project_id: z.string().optional().describe("Project ID to get comments for. Mutually exclusive with task_id."),
+    },
+  },
+  async ({ task_id, project_id }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const comments = await todoist.getComments(task_id ? { taskId: task_id } : { projectId: project_id! } as any);
+    return { content: [{ type: "text", text: JSON.stringify(comments, null, 2) }] };
+  }
+);
+
 // --- add_comment ---
 server.registerTool(
   "add_comment",
   {
-    description: "Add a comment to a Todoist task",
+    description: "Add a comment to a Todoist task or project. Provide either task_id or project_id.",
     inputSchema: {
-      task_id: z.string().describe("The ID of the task to comment on"),
       content: z.string().describe("The comment text"),
+      task_id: z.string().optional().describe("Task ID to comment on. Mutually exclusive with project_id."),
+      project_id: z.string().optional().describe("Project ID to comment on. Mutually exclusive with task_id."),
     },
   },
-  async ({ task_id, content }) => {
-    const comment = await todoist.addComment({ taskId: task_id, content });
+  async ({ content, task_id, project_id }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const comment = await todoist.addComment(task_id ? { taskId: task_id, content } : { projectId: project_id!, content } as any);
     return { content: [{ type: "text", text: JSON.stringify(comment, null, 2) }] };
+  }
+);
+
+// --- update_comment ---
+server.registerTool(
+  "update_comment",
+  {
+    description: "Update the text of an existing comment",
+    inputSchema: {
+      comment_id: z.string().describe("The ID of the comment to update"),
+      content: z.string().describe("New comment text"),
+    },
+  },
+  async ({ comment_id, content }) => {
+    const comment = await todoist.updateComment(comment_id, { content });
+    return { content: [{ type: "text", text: JSON.stringify(comment, null, 2) }] };
+  }
+);
+
+// --- delete_comment ---
+server.registerTool(
+  "delete_comment",
+  {
+    description: "Delete a comment",
+    inputSchema: {
+      comment_id: z.string().describe("The ID of the comment to delete"),
+    },
+  },
+  async ({ comment_id }) => {
+    await todoist.deleteComment(comment_id);
+    return { content: [{ type: "text", text: `Comment ${comment_id} deleted.` }] };
   }
 );
 
