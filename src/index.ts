@@ -46,19 +46,45 @@ server.registerTool(
     description: "Create a new Todoist task",
     inputSchema: {
       content: z.string().describe("Task content / title"),
-      due_string: z.string().optional().describe("Due date in natural language, e.g. 'tomorrow', 'next Monday'"),
-      priority: z.number().int().min(1).max(4).optional().describe("Priority: 1 (normal) to 4 (urgent)"),
+      description: z.string().optional().describe("Longer description / notes for the task"),
+      parent_id: z.string().optional().describe("Parent task ID — creates this as a subtask"),
       project_id: z.string().optional().describe("Project ID to add the task to"),
+      section_id: z.string().optional().describe("Section ID within a project"),
+      priority: z.number().int().min(1).max(4).optional().describe("Priority: 1 (normal), 2 (medium), 3 (high), 4 (urgent)"),
       labels: z.array(z.string()).optional().describe("Array of label names to assign"),
+      due_string: z.string().optional().describe("Due date in natural language, e.g. 'tomorrow', 'next Monday'. Mutually exclusive with due_date/due_datetime."),
+      due_date: z.string().optional().describe("Due date in YYYY-MM-DD format. Mutually exclusive with due_string/due_datetime."),
+      due_datetime: z.string().optional().describe("Due date and time in ISO 8601 format, e.g. '2026-03-20T10:00:00Z'. Mutually exclusive with due_string/due_date."),
     },
   },
-  async ({ content, due_string, priority, project_id, labels }) => {
-    const task = await todoist.addTask({
-      content,
-      dueString: due_string,
-      priority,
-      projectId: project_id,
-      labels,
+  async ({ content, description, parent_id, project_id, section_id, priority, labels, due_string, due_date, due_datetime }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const args: any = { content, description, parentId: parent_id, projectId: project_id, sectionId: section_id, priority, labels, dueString: due_string };
+    if (due_date) args.dueDate = due_date;
+    if (due_datetime) args.dueDatetime = due_datetime;
+    const task = await todoist.addTask(args);
+    return {
+      content: [{ type: "text", text: JSON.stringify(task, null, 2) }],
+    };
+  }
+);
+
+// --- quick_add_task ---
+server.registerTool(
+  "quick_add_task",
+  {
+    description: "Create a task using Todoist natural language parsing. Supports inline syntax for project (#), labels (@), priority (p1-p4), due dates, and reminders.",
+    inputSchema: {
+      text: z.string().describe("Natural language task text, e.g. 'Buy milk tomorrow p2 @shopping #Groceries'"),
+      reminder: z.string().optional().describe("Reminder in natural language, e.g. 'tomorrow at 9am', '1 hour before'"),
+      auto_reminder: z.boolean().optional().describe("Automatically set a default reminder for the task"),
+    },
+  },
+  async ({ text, reminder, auto_reminder }) => {
+    const task = await todoist.quickAddTask({
+      text,
+      reminder,
+      autoReminder: auto_reminder,
     });
     return {
       content: [{ type: "text", text: JSON.stringify(task, null, 2) }],
@@ -106,18 +132,20 @@ server.registerTool(
     inputSchema: {
       task_id: z.string().describe("The ID of the task to update"),
       content: z.string().optional().describe("New task content / title"),
-      due_string: z.string().optional().describe("New due date in natural language, e.g. 'tomorrow'. Pass 'no date' to clear."),
-      priority: z.number().int().min(1).max(4).optional().describe("Priority: 1 (normal) to 4 (urgent)"),
+      description: z.string().optional().describe("New description / notes"),
+      priority: z.number().int().min(1).max(4).optional().describe("Priority: 1 (normal), 2 (medium), 3 (high), 4 (urgent)"),
       labels: z.array(z.string()).optional().describe("Array of label names to assign (replaces existing)"),
+      due_string: z.string().optional().describe("New due date in natural language, e.g. 'tomorrow'. Use 'no date' to clear."),
+      due_date: z.string().optional().describe("Due date in YYYY-MM-DD format. Mutually exclusive with due_string/due_datetime."),
+      due_datetime: z.string().optional().describe("Due date and time in ISO 8601 format. Mutually exclusive with due_string/due_date."),
     },
   },
-  async ({ task_id, content, due_string, priority, labels }) => {
-    const task = await todoist.updateTask(task_id, {
-      content,
-      dueString: due_string,
-      priority,
-      labels,
-    });
+  async ({ task_id, content, description, priority, labels, due_string, due_date, due_datetime }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const args: any = { content, description, priority, labels, dueString: due_string };
+    if (due_date) args.dueDate = due_date;
+    if (due_datetime) args.dueDatetime = due_datetime;
+    const task = await todoist.updateTask(task_id, args);
     return {
       content: [{ type: "text", text: JSON.stringify(task, null, 2) }],
     };
