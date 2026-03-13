@@ -11,8 +11,21 @@
     "dev": "tsc --watch",
     "start": "node dist/index.js"
   },
-  "keywords": ["mcp", "todoist", "claude"],
+  "keywords": [
+    "mcp",
+    "todoist",
+    "claude"
+  ],
   "author": "Chris",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "dependencies": {
+    "@doist/todoist-api-typescript": "^7.0.0",
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "dotenv": "^17.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "typescript": "^5.9.3"
+  }
 }
