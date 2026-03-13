@@ -1,11 +1,14 @@
 {
-  "name": "todoist-mcp",
+  "name": "@carentsen/todoist-mcp",
   "version": "1.0.0",
   "description": "MCP server for Todoist — exposes Todoist as Claude tools via stdio",
   "main": "dist/index.js",
   "bin": {
     "todoist-mcp": "dist/index.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
@@ -16,7 +19,7 @@
     "todoist",
     "claude"
   ],
-  "author": "Chris",
+  "author": "Chris Arentsen",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
