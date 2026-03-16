@@ -80,7 +80,7 @@ server.registerTool(
 server.registerTool(
   "create_task",
   {
-    description: "Create a new Todoist task. [Pro] deadline_date, duration/duration_unit. [Business] assignee_id.",
+    description: "Create a new Todoist task. Before assigning a project, always call get_projects first to resolve the correct project ID. Then call get_sections with that project_id and ask the user if the task should be placed in a section. [Pro] deadline_date, duration/duration_unit. [Business] assignee_id.",
     inputSchema: {
       content: z.string().describe("Task content / title"),
       description: z.string().optional().describe("Longer description / notes"),
@@ -153,7 +153,7 @@ server.registerTool(
 server.registerTool(
   "update_task",
   {
-    description: "Update an existing Todoist task. Use project_id, section_id, or parent_id to move it. [Pro] deadline_date, duration/duration_unit. [Business] assignee_id.",
+    description: "Update an existing Todoist task. Use this to modify OR move a task — never close + recreate. Use project_id, section_id, or parent_id to move it. [Pro] deadline_date, duration/duration_unit. [Business] assignee_id.",
     inputSchema: {
       task_id: z.string().describe("The ID of the task to update"),
       content: z.string().optional().describe("New task content / title"),
@@ -209,7 +209,7 @@ server.registerTool(
 server.registerTool(
   "close_task",
   {
-    description: "Mark a Todoist task as complete",
+    description: "Mark a Todoist task as complete. Only use this to complete a task — never use close + create_task as a way to move or modify a task; use update_task instead.",
     inputSchema: {
       task_id: z.string().describe("The ID of the task to close"),
     },
