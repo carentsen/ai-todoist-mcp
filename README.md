@@ -13,7 +13,6 @@ A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that co
 | `quick_add_task` | Create a task using natural language (`Buy milk tomorrow p2 @shopping #Groceries`) |
 | `update_task` | Update a task, including moving it to a different project/section/parent |
 | `close_task` | Mark a task complete |
-
 ### Projects
 | Tool | Description |
 |---|---|
@@ -54,7 +53,7 @@ Go to Todoist → Settings → Integrations → Developer → copy your API toke
 
 Add the following to your `claude_desktop_config.json`:
 
-**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`  
 **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
@@ -62,7 +61,7 @@ Add the following to your `claude_desktop_config.json`:
   "mcpServers": {
     "todoist": {
       "command": "npx",
-      "args": ["-y", "@carentsen/todoist-mcp"],
+      "args": ["-y", "github:carentsen/todoist-mcp"],
       "env": {
         "TODOIST_API_TOKEN": "your_token_here"
       }
